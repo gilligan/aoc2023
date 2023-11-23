@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./test"
+      component: "test:tests"
+    - path: "./src/"
+      component: "lib:aoc2023"
