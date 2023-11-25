@@ -1,0 +1,23 @@
+{
+  "pins": {
+    "nix-overlays": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-ocaml",
+        "repo": "nix-overlays"
+      },
+      "branch": "master",
+      "revision": "7e524cd8f8e5538333692137991694ec3453dbed",
+      "url": "https://github.com/nix-ocaml/nix-overlays/archive/7e524cd8f8e5538333692137991694ec3453dbed.tar.gz",
+      "hash": "074zfbr2p37kghmm5l4jcr7601gc4xp056agk9pmpfgl76ilvkl2"
+    },
+    "nixpkgs": {
+      "type": "Channel",
+      "name": "nixpkgs-unstable",
+      "url": "https://releases.nixos.org/nixpkgs/nixpkgs-23.11pre536306.12bdeb01ff9e/nixexprs.tar.xz",
+      "hash": "00az00b7h8g4h0n6kvrmjykk70mz91dd5v9fy1fbxzszisvgl9d3"
+    }
+  },
+  "version": 3
+}

@@ -1,0 +1,7 @@
+(library
+ (name aoc)
+ (modules aoc day1 util)
+ (libraries core ppx_show.runtime ppx_inline_test)
+ (inline_tests)
+ (preprocess
+  (pps ppx_inline_test ppx_show)))

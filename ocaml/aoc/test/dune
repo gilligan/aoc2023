@@ -1,0 +1,5 @@
+(test
+ (name aoctests)
+ (modules aoctests day1test utiltest)
+ (libraries aoc alcotest)
+ (deps (glob_files_rec ../data/*)))

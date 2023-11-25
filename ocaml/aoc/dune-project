@@ -1,0 +1,26 @@
+(lang dune 3.11)
+
+(name aoc)
+
+(generate_opam_files true)
+
+(source
+ (github username/reponame))
+
+(authors "Tobias Pflug")
+
+(maintainers "Tobias Pflug")
+
+(license LICENSE)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name aoc)
+ (synopsis "advent of code 2023 with ocaml")
+ (description "my attempt at solving aoc with ocaml")
+ (depends ocaml dune)
+ (tags
+  (topics "aoc" your project)))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
