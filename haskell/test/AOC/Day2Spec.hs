@@ -39,11 +39,6 @@ spec = do
           case traverse (parseString parseGame mempty) ["Game 1: 3 blue, 4 red, 1 green; 3 blue, 4 red, 1 green"] of
                Success x -> x `shouldBe` [[[Draw 3 Blue, Draw 4 Red, Draw 1 Green], [Draw 3 Blue, Draw 4 Red, Draw 1 Green]]]
                Failure _ -> expectationFailure "failed to parse Game"
-
-      describe "isDrawPossible" $ do
-        it "checks if stones fall within limits" $ do
-          isDrawPossible  10 10 10 (Draw 1 Red) `shouldBe` True
-          isDrawPossible  10 10 10 (Draw 11 Red) `shouldBe` False
       describe "p1" $ do
         it "solves the sample input" $ do
           case p1 samplePart1 of

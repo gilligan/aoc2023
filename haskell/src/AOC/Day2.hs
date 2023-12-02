@@ -34,22 +34,13 @@ parseGame = string "Game " >> integer >> symbol ":" >> sepBy1 parseSet (symbol "
 
 -- Part 1
 
-isDrawPossible :: Integer -> Integer -> Integer -> Draw -> Bool
-isDrawPossible rMax _ _ (Draw red Red)
-  | red <= rMax = True
-  | otherwise = False
-isDrawPossible _ gMax _ (Draw green Green)
-  | green <= gMax = True
-  | otherwise = False
-isDrawPossible _ _ bMax (Draw blue Blue)
-  | blue <= bMax = True
-  | otherwise = False
-
-isSetPossible :: Integer -> Integer -> Integer -> Set -> Bool
-isSetPossible r g b = all (isDrawPossible r g b)
-
 isGamePossible :: Integer -> Integer -> Integer -> Game -> Bool
-isGamePossible r g b = all (isSetPossible r g b)
+isGamePossible rMax gMax bMax = all (\set -> all (isDrawPossible set) set)
+  where
+    isDrawPossible :: Set -> Draw -> Bool
+    isDrawPossible _ (Draw red Red)   = red <= rMax
+    isDrawPossible _ (Draw green Green) = green <= gMax
+    isDrawPossible _ (Draw blue Blue)   = blue <= bMax
 
 part1 :: String -> IO (Maybe Int)
 part1 filePath = p1 <$> readFile filePath
