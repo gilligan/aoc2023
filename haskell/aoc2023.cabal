@@ -22,6 +22,7 @@ library
   import:          common-options
   exposed-modules:
     AOC.Day1
+    AOC.Day2
     AOC.Util
 
   build-depends:
@@ -38,6 +39,7 @@ test-suite tests
   main-is:            Spec.hs
   other-modules:
     AOC.Day1Spec
+    AOC.Day2Spec
     AOC.UtilSpec
 
   build-tool-depends: hspec-discover:hspec-discover
