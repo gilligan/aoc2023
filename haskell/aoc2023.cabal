@@ -25,11 +25,16 @@ library
     AOC.Day2
     AOC.Day3
     AOC.Day4
+    AOC.Day5
+    AOC.FailDay5
     AOC.Util
 
   build-depends:
-    , base        ^>=4.17
+    , base         ^>=4.17
     , containers
+    , megaparsec
+    , monad-loops
+    , split
     , text
     , trifecta
     , vector
