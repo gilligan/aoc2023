@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module AOC.Day5 where
 
 import AOC.Util
@@ -47,8 +48,6 @@ sampleD5 =
       "60 56 37",
       "56 93 4"
     ]
-
-Success x = parseString puzzleInput mempty sampleD5
 
 toPairs :: [a] -> [(a,a)]
 toPairs [] = []
