@@ -27,10 +27,13 @@ library
     AOC.Day4
     AOC.Day5
     AOC.Day6
+    AOC.Day7
     AOC.FailDay5
+    AOC.SamirDay7
     AOC.Util
 
   build-depends:
+    , array
     , base         ^>=4.17
     , containers
     , megaparsec
@@ -52,6 +55,7 @@ test-suite tests
     AOC.Day2Spec
     AOC.Day3Spec
     AOC.Day4Spec
+    AOC.Day7Spec
     AOC.UtilSpec
 
   build-tool-depends: hspec-discover:hspec-discover
