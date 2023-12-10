@@ -1,13 +1,13 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module AOC.Day7 where
 
 import AOC.Util
-import qualified Data.List as L
-import Data.Maybe (fromMaybe)
 import Data.Coerce (coerce)
+import qualified Data.List as L
+import Data.Maybe (fromJust, fromMaybe)
 
 sampleInput :: String
 sampleInput =
@@ -19,7 +19,8 @@ sampleInput =
       "QQQJA 483"
     ]
 
--- different types of cards
+-- Data Types for cards and a hand of cards
+ 
 data Card
   = Card2
   | Card3
@@ -36,43 +37,15 @@ data Card
   | CardA
   deriving (Eq, Enum, Bounded, Show)
 
-instance Ord Card where
-  compare c1 c2 = compare (toNum c1) (toNum c2)
-    where
-      toNum Card2 = 2
-      toNum Card3 = 3
-      toNum Card4 = 4
-      toNum Card5 = 5
-      toNum Card6 = 6
-      toNum Card7 = 7
-      toNum Card8 = 8
-      toNum Card9 = 9
-      toNum CardT = 10
-      toNum CardJ = 11
-      toNum CardQ = 12
-      toNum CardK = 13
-      toNum CardA = 14
+data Hand a = Hand a a a a a
+  deriving (Show, Eq)
 
-newtype JkCard = JkCard { getCard :: Card }
+newtype JkHand a = JkHand {getHand :: Hand a}
+  deriving (Show, Eq)
+
+newtype JkCard = JkCard {getCard :: Card}
   deriving (Show, Eq, Bounded)
-  deriving Enum via Card
-
-instance Ord JkCard where
-  compare c1 c2 = compare (toNum $ getCard c1) (toNum $ getCard c2)
-    where
-      toNum CardJ = 1 
-      toNum Card2 = 2
-      toNum Card3 = 3
-      toNum Card4 = 4
-      toNum Card5 = 5
-      toNum Card6 = 6
-      toNum Card7 = 7
-      toNum Card8 = 8
-      toNum Card9 = 9
-      toNum CardT = 10
-      toNum CardQ = 12
-      toNum CardK = 13
-      toNum CardA = 14
+  deriving (Enum) via Card
 
 data HType
   = High
@@ -84,74 +57,85 @@ data HType
   | FiveKind
   deriving (Show, Eq, Ord, Enum, Bounded)
 
-data Hand a = Hand a a a a a
-  deriving (Eq)
+-- instances
 
-newtype JkHand a = JkHand { getHand :: Hand a }
-  deriving (Show, Eq)
+cardToNum :: Card -> Int
+cardToNum c = fromJust $ L.elemIndex c [minBound .. maxBound]
 
+instance Ord Card where
+  compare c1 c2 = compare (cardToNum c1) (cardToNum c2)
 
-
-
-instance (Show a) => Show (Hand a) where
-  show (Hand c1 c2 c3 c4 c5) = "(" ++ show c1 ++ show c2 ++ show c3 ++ show c4 ++ show c5 ++ ")"
+instance Ord JkCard where
+  compare c1 c2 = compare (toNum $ getCard c1) (toNum $ getCard c2)
+    where
+      toNum CardJ = 1
+      toNum Card2 = 2
+      toNum Card3 = 3
+      toNum Card4 = 4
+      toNum Card5 = 5
+      toNum Card6 = 6
+      toNum Card7 = 7
+      toNum Card8 = 8
+      toNum Card9 = 9
+      toNum CardT = 10
+      toNum CardQ = 12
+      toNum CardK = 13
+      toNum CardA = 14
 
 instance (Ord a) => Ord (Hand a) where
   compare h1@(Hand a1 a2 a3 a4 a5) h2@(Hand b1 b2 b3 b4 b5)
-    | getHandType h1 == getHandType h2 = fromMaybe EQ (L.find (/= EQ) compared)
+    | sameHand = fromMaybe EQ (L.find (/= EQ) compared)
     | otherwise = compare (getHandType h1) (getHandType h2)
     where
-      cards1 = [a1, a2, a3, a4, a5]
-      cards2 = [b1, b2, b3, b4, b5]
-      compared = zipWith compare cards1 cards2
+      sameHand = getHandType h1 == getHandType h2
+      compared = zipWith compare [a1, a2, a3, a4, a5] [b1, b2, b3, b4, b5]
 
-instance (Ord a, a ~ JkCard) => Ord (JkHand a) where
+instance Ord (JkHand JkCard) where
   compare (JkHand h1@(Hand a1 a2 a3 a4 a5)) (JkHand h2@(Hand b1 b2 b3 b4 b5))
-    | getHandTypeWithJoker (JkCard CardJ) h1 == getHandTypeWithJoker (JkCard CardJ) h2 = fromMaybe EQ (L.find (/= EQ) compared)
-    | otherwise = compare (getHandTypeWithJoker (JkCard CardJ) h1) (getHandTypeWithJoker (JkCard CardJ) h2)
+    | sameHand = fromMaybe EQ (L.find (/= EQ) compared)
+    | otherwise = compare (getHandTypeWithJoker joker h1) (getHandTypeWithJoker joker h2)
     where
-      cards1 = [a1, a2, a3, a4, a5]
-      cards2 = [b1, b2, b3, b4, b5]
-      compared = zipWith compare cards1 cards2
+      joker = JkCard CardJ
+      sameHand = getHandTypeWithJoker joker h1 == getHandTypeWithJoker joker h2
+      compared = zipWith compare [a1, a2, a3, a4, a5] [b1, b2, b3, b4, b5]
 
-aCard :: Parser Card
-aCard =
-  choice
-    [ char '2' >> return Card2,
-      char '3' >> return Card3,
-      char '4' >> return Card4,
-      char '5' >> return Card5,
-      char '6' >> return Card6,
-      char '7' >> return Card7,
-      char '8' >> return Card8,
-      char '9' >> return Card9,
-      char 'A' >> return CardA,
-      char 'K' >> return CardK,
-      char 'Q' >> return CardQ,
-      char 'J' >> return CardJ,
-      char 'T' >> return CardT
-    ]
-
-aHand :: Parser (Hand Card)
-aHand = Hand <$> aCard <*> aCard <*> aCard <*> aCard <*> aCard
-
-handBid :: Parser (Hand Card, Integer)
-handBid = (,) <$> aHand <*> (whiteSpace *> integer)
+handWithBid :: Parser (Hand Card, Integer)
+handWithBid = (,) <$> aHand <*> (whiteSpace *> integer)
+  where
+    aHand :: Parser (Hand Card)
+    aHand = Hand <$> aCard <*> aCard <*> aCard <*> aCard <*> aCard
+    aCard :: Parser Card
+    aCard = choice
+      [ Card2 <$ char '2',
+        Card3 <$ char '3',
+        Card4 <$ char '4',
+        Card5 <$ char '5',
+        Card6 <$ char '6',
+        Card7 <$ char '7',
+        Card8 <$ char '8',
+        Card9 <$ char '9',
+        CardA <$ char 'A',
+        CardK <$ char 'K',
+        CardQ <$ char 'Q',
+        CardJ <$ char 'J',
+        CardT <$ char 'T'
+      ]
 
 getHandTypeWithJoker :: (Ord a) => a -> Hand a -> HType
-getHandTypeWithJoker joker h@(Hand c1 c2 c3 c4 c5)
-  | handType == High && jokerCount == 1 = OnePair
-  | handType == OnePair && jokerCount == 1 = ThreeKind
-  | handType == OnePair && jokerCount == 2 = ThreeKind
-  | handType == TwoPair && jokerCount == 1 = FullHouse
-  | handType == TwoPair && jokerCount == 2 = FourKind
-  | handType == ThreeKind && jokerCount == 1 = FourKind
-  | handType == ThreeKind && jokerCount == 3 = FourKind
-  | handType == FourKind && jokerCount == 1 = FiveKind
-  | handType == FourKind && jokerCount == 4 = FiveKind
-  | handType == FullHouse && jokerCount == 2 = FiveKind
-  | handType == FullHouse && jokerCount == 3 = FiveKind
-  | otherwise = handType
+getHandTypeWithJoker joker h@(Hand c1 c2 c3 c4 c5) =
+  case (handType, jokerCount) of
+    (High, 1) -> OnePair
+    (OnePair, 1) -> ThreeKind
+    (OnePair, 2) -> ThreeKind
+    (TwoPair, 1) -> FullHouse
+    (TwoPair, 2) -> FourKind
+    (ThreeKind, 1) -> FourKind
+    (ThreeKind, 3) -> FourKind
+    (FourKind, 1) -> FiveKind
+    (FourKind, 4) -> FiveKind
+    (FullHouse, 2) -> FiveKind
+    (FullHouse, 3) -> FiveKind
+    _ -> handType
   where
     cards = L.sort [c1, c2, c3, c4, c5]
     handType = getHandType h
@@ -171,34 +155,20 @@ getHandType (Hand c1 c2 c3 c4 c5)
     groups = L.sort $ length <$> (L.group . L.sort $ cards)
     cards = L.sort [c1, c2, c3, c4, c5]
 
-totalWinning :: [(Hand Card, Integer)] -> Integer
-totalWinning input = L.sum $ L.zipWith getValue [1 ..] (L.sortOn fst input)
+getTotalWin :: (Num a, Enum a, Ord b) => [(b, a)] -> a
+getTotalWin input = L.sum $ L.zipWith getValue [1 ..] (L.sortOn fst input)
   where
     getValue pos (_, bid) = pos * bid
-
-totalWinningJk :: [(JkHand JkCard, Integer)] -> Integer
-totalWinningJk input = L.sum $ L.zipWith getValue [1 ..] (L.sortOn fst input)
-  where
-    getValue pos (_, bid) = pos * bid
-
-
-p1 :: String -> Integer
-p1 str = case traverse (parseString handBid mempty) (lines str) of
-  Success input -> totalWinning input
-  Failure err -> error $ show err
 
 part1 :: IO Integer
 part1 = do
-  input <- readFile "./data/day7.txt"
-  return $ p1 input
-
-p2 :: String -> Integer
-p2 str = case traverse (parseString handBid mempty) (lines str) of
-  Success input -> totalWinningJk (coerce input :: [(JkHand JkCard, Integer)])
-  Failure err -> error $ show err
-
+  inputData <- readFile "./data/day7.txt"
+  return $ case traverse (parseString handWithBid mempty) (lines inputData) of
+       Success parsed -> getTotalWin parsed
+       Failure err -> error $ show err
 part2 :: IO Integer
 part2 = do
-  input <- readFile "./data/day7.txt"
-  return $ p2 input
-
+  inputData <- readFile "./data/day7.txt"
+  return $ case traverse (parseString handWithBid mempty) (lines inputData) of
+       Success parsed -> getTotalWin (coerce parsed :: [(JkHand JkCard, Integer)])
+       Failure err -> error $ show err
