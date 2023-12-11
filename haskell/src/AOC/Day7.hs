@@ -5,7 +5,6 @@
 module AOC.Day7 where
 
 import AOC.Util
-import Data.Coerce (coerce)
 import qualified Data.List as L
 import Data.Maybe (fromJust, fromMaybe)
 
@@ -20,7 +19,7 @@ sampleInput =
     ]
 
 -- Data Types for cards and a hand of cards
- 
+
 data Card
   = Card2
   | Card3
@@ -87,6 +86,9 @@ instance Ord (JkHand JkCard) where
       joker = JkCard CardJ
       sameHand = getHandTypeWithJoker joker h1 == getHandTypeWithJoker joker h2
       compared = zipWith compare [a1, a2, a3, a4, a5] [b1, b2, b3, b4, b5]
+
+toJkHand :: (Hand Card, Integer) -> (JkHand JkCard, Integer)
+toJkHand (Hand c1 c2 c3 c4 c5, n) = (JkHand $ Hand (JkCard c1) (JkCard c2) (JkCard c3) (JkCard c4) (JkCard c5), n)
 
 handWithBid :: Parser (Hand Card, Integer)
 handWithBid = (,) <$> aHand <*> (whiteSpace *> integer)
@@ -158,6 +160,6 @@ part1 = do
 part2 :: IO Integer
 part2 = do
   inputData <- readFile "./data/day7.txt"
-  return $ case traverse (parseString handWithBid mempty) (lines inputData) of
-       Success parsed -> getTotalWin (coerce parsed :: [(JkHand JkCard, Integer)])
+  return $ case traverse (fmap toJkHand . parseString handWithBid mempty) (lines inputData) of
+       Success parsed -> getTotalWin parsed
        Failure err -> error $ show err
