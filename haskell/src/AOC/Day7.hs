@@ -60,7 +60,7 @@ data HType
 -- instances
 
 cardToNum :: Card -> Int
-cardToNum c = fromJust $ L.elemIndex c [minBound .. maxBound]
+cardToNum c = (2+) $ fromJust $ L.elemIndex c [minBound .. maxBound]
 
 instance Ord Card where
   compare c1 c2 = compare (cardToNum c1) (cardToNum c2)
@@ -69,18 +69,7 @@ instance Ord JkCard where
   compare c1 c2 = compare (toNum $ getCard c1) (toNum $ getCard c2)
     where
       toNum CardJ = 1
-      toNum Card2 = 2
-      toNum Card3 = 3
-      toNum Card4 = 4
-      toNum Card5 = 5
-      toNum Card6 = 6
-      toNum Card7 = 7
-      toNum Card8 = 8
-      toNum Card9 = 9
-      toNum CardT = 10
-      toNum CardQ = 12
-      toNum CardK = 13
-      toNum CardA = 14
+      toNum x = cardToNum x
 
 instance (Ord a) => Ord (Hand a) where
   compare h1@(Hand a1 a2 a3 a4 a5) h2@(Hand b1 b2 b3 b4 b5)
