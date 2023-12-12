@@ -28,6 +28,7 @@ library
     AOC.Day5
     AOC.Day6
     AOC.Day7
+    AOC.Day8
     AOC.FailDay5
     AOC.SamirDay7
     AOC.Util
@@ -56,6 +57,7 @@ test-suite tests
     AOC.Day3Spec
     AOC.Day4Spec
     AOC.Day7Spec
+    AOC.Day8Spec
     AOC.UtilSpec
 
   build-tool-depends: hspec-discover:hspec-discover

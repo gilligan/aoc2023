@@ -1,3 +1,4 @@
+{-# LANGUAGE ImportQualifiedPost #-}
 module AOC.Day8 where
 
 import AOC.Util
@@ -111,30 +112,30 @@ getStartNodes :: NodeMap -> [Node]
 getStartNodes nm = fst <$> filter (\(n, _) -> last n == 'A') nm
 
 
-stepUntil :: [Dir] -> [Node] -> NodeMap -> Integer
-stepUntil is startNodes nodeMap = go startNodes (head is) 0
-  where
-    go :: [Node] -> Dir -> Integer -> Integer
-    go nodes move n =
-      let nexts = fmap (\x -> step x move nodeMap) nodes
-          anyFromDest = any (\x -> last x == 'Z') nodes
-          allToDest = all (\x -> last x == 'Z') nexts
-          count = n + 1
-          instIndex = count `mod` toInteger (length is)
-          nextInst = is !! fromInteger instIndex
-       in if not anyFromDest && allToDest then count else go nexts nextInst count
-
-
 step :: Node -> Dir -> NodeMap -> Node
 step node inst nodeMap =
-      let (left, right) = fromMaybe (error "Could not find node!") (lookup node nodeMap)
-       in case inst of
-            L -> left
-            R -> right
+  let (left, right) = fromMaybe (error "Could not find node!") (lookup node nodeMap)
+   in case inst of
+        L -> left
+        R -> right
 
+stepUntil :: [Dir] -> Node -> NodeMap -> Integer
+stepUntil is startNode nodeMap = go startNode (head is) 0
+  where
+    go :: Node -> Dir -> Integer -> Integer
+    go node move n
+      | all (\x -> last x == 'Z') nexts = n + 1
+      | otherwise =
+        let count = n + 1
+            instIndex = count `mod` toInteger (length is)
+            nextInst = is !! fromInteger instIndex
+            nextNode = step node move nodeMap
+         in go nextNode nextInst count
+      where
+        nexts = [step node move nodeMap]
 
-fuckOff :: [Dir] -> NodeMap -> Integer
-fuckOff is nodeMap = foldl1 lcm $ fmap (\x -> stepUntil is [x] nodeMap) startNodes
+solvePart2 :: [Dir] -> NodeMap -> Integer
+solvePart2 is nodeMap = foldl1 lcm [stepUntil is x nodeMap | x <- startNodes]
   where
     startNodes = getStartNodes nodeMap
 
@@ -150,5 +151,5 @@ part2 :: IO Integer
 part2 = do
   inputData <- readFile "./data/day8.txt"
   return $ case parseString puzzleInput mempty inputData of
-    Success (insts, nodeMap) -> fuckOff insts nodeMap
+    Success (insts, nodeMap) -> solvePart2 insts nodeMap
     Failure err -> error $ show err
