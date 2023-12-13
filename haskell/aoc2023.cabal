@@ -29,6 +29,7 @@ library
     AOC.Day6
     AOC.Day7
     AOC.Day8
+    AOC.Day9
     AOC.FailDay5
     AOC.SamirDay7
     AOC.Util
