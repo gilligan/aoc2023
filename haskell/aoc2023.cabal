@@ -54,7 +54,6 @@ test-suite tests
   hs-source-dirs:     test
   main-is:            Spec.hs
   other-modules:
-    AOC.Day10Spec
     AOC.Day1Spec
     AOC.Day2Spec
     AOC.Day3Spec
