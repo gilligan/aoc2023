@@ -22,6 +22,7 @@ library
   import:          common-options
   exposed-modules:
     AOC.Day1
+    AOC.Day10
     AOC.Day2
     AOC.Day3
     AOC.Day4
@@ -31,7 +32,7 @@ library
     AOC.Day8
     AOC.Day9
     AOC.FailDay5
-    AOC.SamirDay7
+    AOC.Grid
     AOC.Util
 
   build-depends:
@@ -53,6 +54,7 @@ test-suite tests
   hs-source-dirs:     test
   main-is:            Spec.hs
   other-modules:
+    AOC.Day10Spec
     AOC.Day1Spec
     AOC.Day2Spec
     AOC.Day3Spec

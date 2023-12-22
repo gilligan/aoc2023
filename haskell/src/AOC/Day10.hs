@@ -1,44 +1,16 @@
 {-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE ImportQualifiedPost #-}
 
 module AOC.Day10 where
 
 import AOC.Util
 import Control.Applicative
 import Data.Bifunctor
-import Data.Ix
-import Data.List qualified as L
 import Data.Maybe (fromJust)
-
-sample1 :: String
-sample1 =
-  unlines
-    [ ".....",
-      ".S-7.",
-      ".|.|.",
-      ".L-J.",
-      "....."
-    ]
-
-sample2 :: String
-sample2 =
-  unlines
-    [ "..F7.",
-      ".FJ|.",
-      "SJ.L7",
-      "|F--J",
-      "LJ..."
-    ]
-
-unsafeParseMap :: [String] -> TileMap
-unsafeParseMap strs = case traverse (parseString (many aTile) mempty) strs of
-  (Success x) -> x
-  (Failure e) -> error $ show e
 
 -- data types
 type TilePos = (Int, Int)
 
-type TileMap = [[Tile]]
+type TileMap = Grid Tile
 
 data Tile
   = NS -- "|" is a vertical pipe connecting north and south.
@@ -84,9 +56,6 @@ aTile =
 
 -- utils
 
-idx :: [[a]] -> (Int, Int) -> a
-idx xs (x, y) = xs !! y !! x
-
 north :: (Int, Int)
 north = (0, -1)
 
@@ -128,20 +97,17 @@ getConnections pos@(x, y) tMap = case liftA2 zip possibleMoves validTiles of
       . fmap (first toCoord)
       $ movesAndTiles
   where
-    onMap ((_x, _y), _) = inRange (0, mapWidth - 1) _x && inRange (0, mapHeight - 1) _y
-    toCoord (dx, dy) = (x + dx, y + dy)
-    tile = tMap `idx` pos
-    possibleMoves = lookup tile tileToMoveOptions
+    onMap (pos, _) = onGrid pos tMap
+    toCoord = bimap (+x) (+y) 
+    possibleMoves = lookup (tMap @ pos) tileToMoveOptions
     validTiles = possibleMoves >>= traverse (`lookup` dirToTile)
-    mapWidth = length . head $ tMap
-    mapHeight = length tMap
-    isConnected (pos, ts) = (tMap `idx` pos) `elem` ts
+    isConnected (pos, ts) = (tMap @ pos) `elem` ts
 
 findLoop :: TilePos -> TileMap -> [TilePos]
 findLoop startPos tileMap = drop 2 $ reverse $ go startPos [startPos]
   where
     go pos path
-      | tileMap `idx` pos == S && path /= [startPos] = path
+      | tileMap @ pos == S && path /= [startPos] = path
       | otherwise = case getConnections pos tileMap of
           None -> []
           OneWay a -> go a (pos : path)
@@ -156,17 +122,10 @@ toConnection [x] = OneWay x
 toConnection [l, r] = TwoWay l r
 toConnection res = error $ "unexpected illegal connection" ++ show res
 
-getLocation :: (Eq a) => a -> [[a]] -> Maybe (Int, Int)
-getLocation x xs =
-  L.findIndex (elem x) xs
-    >>= \y ->
-      L.elemIndex x (xs !! y)
-        >>= \x -> Just (x, y)
-
 solvePart1 :: TileMap -> Int
 solvePart1 map =
   let
-    startPos = fromJust $ getLocation S map
+    startPos = fromJust $ gridLocation S map
     path = findLoop startPos map
    in ((length path +1) `div` 2)
 
@@ -174,5 +133,5 @@ part1 :: IO Int
 part1 = do
   input <- lines <$> readFile "./data/day10.txt"
   case traverse (parseString (many aTile) mempty) input of
-    Success x -> return $ solvePart1 x
+    Success x -> return $ solvePart1 (Grid x)
     Failure err -> error $ show err

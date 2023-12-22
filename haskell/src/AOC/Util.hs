@@ -1,5 +1,9 @@
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+
 module AOC.Util
   ( module Text.Trifecta,
+    module AOC.Grid,
     readItemsFromFile,
     readItemsFromFileWith,
     parseFile,
@@ -12,6 +16,7 @@ import Data.Functor ((<&>))
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Text.Trifecta
+import AOC.Grid
 
 update :: Integer -> (a -> a) -> [a] -> [a]
 update idx f xs = take (fromIntegral idx) xs ++ [f (xs !! fromIntegral idx)] ++ drop (fromIntegral idx + 1) xs
